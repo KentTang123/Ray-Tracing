@@ -167,9 +167,9 @@ namespace {
         EXPECT_TRUE(IsPrime(23));
     }
 }  // namespace
-GTEST_API_ int main() {
+GTEST_API_ int main(int argc, char** argv) {
     printf("Running main() from %s\n", __FILE__);
-    testing::InitGoogleTest();
+    testing::InitGoogleTest(&argc, argv);
     return RUN_ALL_TESTS();
 }
 // Step 3. Call RUN_ALL_TESTS() in main().

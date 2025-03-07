@@ -6,12 +6,13 @@ set(CMAKE_CXX_STANDARD_REQUIRED on)
 set(CMAKE_CXX_STANDARD 17)
 
 add_executable(${PROJECT_NAME}
-    src/main.cpp
+    src/core/main.cpp
+    src/core/application.cpp
 )
 
 add_subdirectory(ext)
 
-target_include_directories(${PROJECT_NAME} PRIVATE ${Include-dir})
+target_include_directories(${PROJECT_NAME} PRIVATE ${Include-dir} ${CMAKE_CURRENT_SOURCE_DIR}/src)
 target_link_directories(${PROJECT_NAME} PRIVATE ${Lib-dir})
 target_link_libraries(${PROJECT_NAME} PRIVATE ${Libs})
 

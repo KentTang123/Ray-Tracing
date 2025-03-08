@@ -6,8 +6,15 @@
 #include <vector>
 #include <cstring>
 #include <iostream>
-
+#include <optional>
 namespace Kent {
+    struct QueueFamilyIndices {
+        std::optional<uint32_t> graphicsFamily;
+
+        bool isComplete() {
+            return graphicsFamily.has_value();
+        }
+    };
     class Application {
     public:
         Application();
@@ -35,6 +42,9 @@ namespace Kent {
         void populateDebugMessengerCreateInfo(VkDebugUtilsMessengerCreateInfoEXT& createInfo)const;
         VkResult setupDebugMessenger();
         VkResult createInstance();
+        bool pickPhysicalDevice();
+        QueueFamilyIndices findQueueFamilies(const VkPhysicalDevice& device)const;
+        bool createLogicalDevice();
         void cleanUp();
     private:
         GLFWwindow* window;
@@ -46,5 +56,7 @@ namespace Kent {
         };
         VkDebugUtilsMessengerEXT debugMessenger;
         VkInstance instance;
+        VkPhysicalDevice physicalDevice;
+        VkDevice device;
     };
 }

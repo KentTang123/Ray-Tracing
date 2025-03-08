@@ -41,6 +41,9 @@ void Kent::Application::initVulkan() {
     if (setupDebugMessenger() != VK_SUCCESS)
         throw std::runtime_error("failed to set up debug messenger!");
 
+    if (!pickPhysicalDevice())
+        throw std::runtime_error("failed to pick physical device!");
+
 }
 
 bool Kent::Application::checkValidationLayerSupport() const {
@@ -149,6 +152,60 @@ VkResult Kent::Application::createInstance() {
     createInfo.ppEnabledExtensionNames = extensions.data();
 
     return vkCreateInstance(&createInfo, nullptr, &instance);
+}
+
+bool Kent::Application::pickPhysicalDevice() {
+    uint32_t physicalDevicecCount = 0;
+    vkEnumeratePhysicalDevices(instance, &physicalDevicecCount, nullptr);
+
+    if (physicalDevicecCount == 0)
+        return false;
+
+    std::vector<VkPhysicalDevice> devices(physicalDevicecCount);
+    vkEnumeratePhysicalDevices(instance, &physicalDevicecCount, devices.data());
+
+    for (const VkPhysicalDevice& device : devices) {
+        VkPhysicalDeviceProperties deviceProperties;
+        VkPhysicalDeviceFeatures deviceFeatures;
+        vkGetPhysicalDeviceProperties(device, &deviceProperties);
+        vkGetPhysicalDeviceFeatures(device, &deviceFeatures);
+
+        if (deviceProperties.deviceType == VK_PHYSICAL_DEVICE_TYPE_DISCRETE_GPU) {
+            physicalDevice = device;
+            break;
+        }
+    }
+    physicalDevice = devices.at(0);
+    return true;
+}
+
+
+Kent::QueueFamilyIndices Kent::Application::findQueueFamilies(const VkPhysicalDevice& device) const {
+    QueueFamilyIndices indices;
+
+    uint32_t queueFamilyCount = 0;
+    vkGetPhysicalDeviceQueueFamilyProperties(device, &queueFamilyCount, nullptr);
+
+    std::vector<VkQueueFamilyProperties> queueFamilies(queueFamilyCount);
+    vkGetPhysicalDeviceQueueFamilyProperties(device, &queueFamilyCount, queueFamilies.data());
+
+    int i = 0;
+    for (const auto& queueFamily : queueFamilies) {
+        if (queueFamily.queueFlags & VK_QUEUE_GRAPHICS_BIT) {
+            indices.graphicsFamily = i;
+        }
+
+        if (indices.isComplete()) {
+            break;
+        }
+
+        i++;
+    }
+    return indices;
+}
+
+bool Kent::Application::createLogicalDevice() {
+    return false;
 }
 
 void Kent::Application::cleanUp() {

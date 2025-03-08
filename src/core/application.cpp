@@ -226,7 +226,11 @@ VkResult Kent::Application::createLogicalDevice() {
     createInfo.pEnabledFeatures = &deviceFeatures;
     createInfo.enabledExtensionCount = 0;
 
-    return vkCreateDevice(physicalDevice, &createInfo, nullptr, &device);
+    VkResult result = vkCreateDevice(physicalDevice, &createInfo, nullptr, &device);
+
+    vkGetDeviceQueue(device, indices.graphicsFamily.value(), 0, &graphicsQueue);
+
+    return result;
 }
 
 void Kent::Application::cleanUp() {

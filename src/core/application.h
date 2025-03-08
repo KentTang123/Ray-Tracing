@@ -58,5 +58,6 @@ namespace Kent {
         VkInstance instance;
         VkPhysicalDevice physicalDevice;
         VkDevice device;
+        VkQueue graphicsQueue;
     };
 }

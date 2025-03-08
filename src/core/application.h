@@ -44,7 +44,7 @@ namespace Kent {
         VkResult createInstance();
         bool pickPhysicalDevice();
         QueueFamilyIndices findQueueFamilies(const VkPhysicalDevice& device)const;
-        bool createLogicalDevice();
+        VkResult createLogicalDevice();
         void cleanUp();
     private:
         GLFWwindow* window;

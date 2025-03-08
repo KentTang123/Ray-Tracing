@@ -33,15 +33,18 @@ void Kent::Application::initWindow() {
 
 void Kent::Application::initVulkan() {
     if (enableValidationLayers && !checkValidationLayerSupport())
-        throw std::exception("validation layers requested, but not available!");
+        throw std::runtime_error("failed to set up debug messenger!");
 
     if (createInstance() != VK_SUCCESS)
-        throw std::exception("fail to create instance");
+        throw std::runtime_error("failed to set up debug messenger!");
 
     if (setupDebugMessenger() != VK_SUCCESS)
         throw std::runtime_error("failed to set up debug messenger!");
 
     if (!pickPhysicalDevice())
+        throw std::runtime_error("failed to pick physical device!");
+
+    if (createLogicalDevice() != VK_SUCCESS)
         throw std::runtime_error("failed to pick physical device!");
 
 }
@@ -166,9 +169,7 @@ bool Kent::Application::pickPhysicalDevice() {
 
     for (const VkPhysicalDevice& device : devices) {
         VkPhysicalDeviceProperties deviceProperties;
-        VkPhysicalDeviceFeatures deviceFeatures;
         vkGetPhysicalDeviceProperties(device, &deviceProperties);
-        vkGetPhysicalDeviceFeatures(device, &deviceFeatures);
 
         if (deviceProperties.deviceType == VK_PHYSICAL_DEVICE_TYPE_DISCRETE_GPU) {
             physicalDevice = device;
@@ -204,12 +205,34 @@ Kent::QueueFamilyIndices Kent::Application::findQueueFamilies(const VkPhysicalDe
     return indices;
 }
 
-bool Kent::Application::createLogicalDevice() {
-    return false;
+VkResult Kent::Application::createLogicalDevice() {
+    QueueFamilyIndices indices = findQueueFamilies(physicalDevice);
+
+    VkDeviceQueueCreateInfo queueCreateInfo{};
+    queueCreateInfo.sType = VK_STRUCTURE_TYPE_DEVICE_QUEUE_CREATE_INFO;
+    queueCreateInfo.queueFamilyIndex = indices.graphicsFamily.value();
+    queueCreateInfo.queueCount = 1;
+
+    float queuePriority = 1.0f;
+    queueCreateInfo.pQueuePriorities = &queuePriority;
+
+    VkPhysicalDeviceFeatures deviceFeatures;
+    vkGetPhysicalDeviceFeatures(physicalDevice, &deviceFeatures);
+
+    VkDeviceCreateInfo createInfo{};
+    createInfo.sType = VK_STRUCTURE_TYPE_DEVICE_CREATE_INFO;
+    createInfo.pQueueCreateInfos = &queueCreateInfo;
+    createInfo.queueCreateInfoCount = 1;
+    createInfo.pEnabledFeatures = &deviceFeatures;
+    createInfo.enabledExtensionCount = 0;
+
+    return vkCreateDevice(physicalDevice, &createInfo, nullptr, &device);
 }
 
 void Kent::Application::cleanUp() {
     //cleanup vulkan objects
+    vkDestroyDevice(device, nullptr);
+
     if (enableValidationLayers)
         DestroyDebugUtilsMessengerEXT(instance, debugMessenger, nullptr);
 

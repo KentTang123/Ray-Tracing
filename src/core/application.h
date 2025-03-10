@@ -14,6 +14,7 @@
 #include <cstdint> 
 #include <limits> 
 #include <algorithm>
+#include <fstream>
 
 namespace Kent {
     struct QueueFamilyIndices {
@@ -55,6 +56,11 @@ namespace Kent {
         QueueFamilyIndices findQueueFamilies(const VkPhysicalDevice& device)const;
         VkResult createLogicalDevice();
         VkResult setupSwapChain();
+        VkResult createImageViews();
+        VkResult createRenderPass();
+        VkResult createGraphicsPipeline();
+        static std::vector<char> readFile(const std::string& filename);
+        VkShaderModule createShaderModule(const std::vector<char>& code);
         void cleanUp();
     private:
         GLFWwindow* window;
@@ -72,8 +78,15 @@ namespace Kent {
         VkPhysicalDevice physicalDevice = VK_NULL_HANDLE;
         VkDevice device;
         VkQueue graphicsQueue;
-        VkSurfaceKHR surface;
         VkQueue presentQueue;
+        VkSurfaceKHR surface;
         VkSwapchainKHR swapChain;
+        VkFormat swapChainImageFormat;
+        VkExtent2D swapChainExtent;
+        std::vector<VkImage> swapChainImages;
+        std::vector<VkImageView> swapChainImageViews;
+        VkRenderPass renderPass;
+        VkPipelineLayout pipelineLayout;
+        VkPipeline graphicsPipeline;
     };
 }
